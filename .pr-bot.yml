@@ -4,8 +4,3 @@ approvalRules:
         - tests/*
         - package.json
         - yarn.lock
-    properties:
-      - files:
-          - package.json
-        allowed:
-          - dependencies.@babel/*
