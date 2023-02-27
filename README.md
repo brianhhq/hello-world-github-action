@@ -1,1 +1,1 @@
-# hello-world-github-action test pr review
+# hello-world-github-action - test pr review bot
