@@ -1,0 +1,741 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Add permissions for for DHP pipeline for ga/nonp workspace cba-a-dott-dot_archetype_1-custom
+Parameters:
+
+  # System Parameters
+  KMSKeyId:
+    Description: The fully qualified KMS key ARN used for S3 data encryption.
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/CNS/resources/s3_key_arn'
+  SecretMgrKMSKeyId:
+    Description: The fully qualified KMS key ARN used for Secrets data encryption.
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/CNS/resources/secretsmanager_key_arn'
+    
+Resources:
+
+  # EC2 Permissions
+  AcoeCICDRolEC2Policy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleEC2Policy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'ec2:AllocateAddress'
+              - 'ec2:Assign*'
+              - 'ec2:Associate*'
+              - 'ec2:Attach*'
+              - 'ec2:AuthorizeSecurityGroup*'
+              - 'ec2:CreateDefault*'
+              - 'ec2:CreateLaunchTemplate*'
+              - 'ec2:CreateNetworkInterface*'
+              - 'ec2:CreateSecurityGroup'
+              - 'ec2:CreateTags'
+              - 'ec2:CreateVolume'
+              - 'ec2:DeleteLaunchTemplate*'
+              - 'ec2:DeleteNetworkInterface*'
+              - 'ec2:DeleteSecurityGroup'
+              - 'ec2:DeleteTags'
+              - 'ec2:DeleteVolume'
+              - 'ec2:Describe*'
+              - 'ec2:Detach*'
+              - 'ec2:Disassociate*'
+              - 'ec2:EnableEbsEncryptionByDefault'
+              - 'ec2:Get*'
+              - 'ec2:ModifyInstance*'
+              - 'ec2:ModifyLaunchTemplate'
+              - 'ec2:ModifyNetworkInterfaceAttribute'
+              - 'ec2:ModifySecurityGroupRules'
+              - 'ec2:ModifyVolume*'
+              - 'ec2:MonitorInstances'
+              - 'ec2:RebootInstances'
+              - 'ec2:RegisterInstanceEventNotificationAttributes'
+              - 'ec2:ReportInstanceStatus'
+              - 'ec2:ResetInstanceAttribute'
+              - 'ec2:ResetNetworkInterfaceAttribute'
+              - 'ec2:RevokeSecurityGroup*'
+              - 'ec2:RunInstances'
+              - 'ec2:StartInstances'
+              - 'ec2:StopInstances'
+              - 'ec2:TerminateInstances'
+              - 'ec2:UnmonitorInstances'
+              - 'ec2:UpdateSecurityGroupRuleDescriptions*'
+            Resource: '*'
+
+  # EC2AutoScaling Permissions
+  AcoeCICDRoleEC2AutoScalingPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleEC2AutoScalingPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'autoscaling:Attach*'
+              - 'autoscaling:CancelInstanceRefresh'
+              - 'autoscaling:CreateAutoScalingGroup'
+              - 'autoscaling:CreateLaunchConfiguration'
+              - 'autoscaling:CreateOrUpdateTags'
+              - 'autoscaling:DeleteAutoScalingGroup'
+              - 'autoscaling:DeleteLaunchConfiguration'
+              - 'autoscaling:DeleteLifecycleHook'
+              - 'autoscaling:DeleteNotificationConfiguration'
+              - 'autoscaling:DeletePolicy'
+              - 'autoscaling:DeleteScheduledAction'
+              - 'autoscaling:Describe*'
+              - 'autoscaling:Detach*'
+              - 'autoscaling:DisableMetricsCollection'
+              - 'autoscaling:EnableMetricsCollection'
+              - 'autoscaling:PutLifecycleHook'
+              - 'autoscaling:PutNotificationConfiguration'
+              - 'autoscaling:PutScalingPolicy'
+              - 'autoscaling:PutScheduledUpdateGroupAction'
+              - 'autoscaling:SetDesiredCapacity'
+              - 'autoscaling:StartInstanceRefresh'
+              - 'autoscaling:TerminateInstanceInAutoScalingGroup'
+              - 'autoscaling:UpdateAutoScalingGroup'
+            Resource: '*'
+
+  # S3 Permissions
+  AcoeCICDRoleS3Policy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleS3Policy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:CreateBucket'
+              - 's3:DeleteBucket'
+              - 's3:DeleteBucketPolicy'
+              - 's3:PutBucket*'
+              - 's3:PutEncryptionConfiguration'
+              - 's3:PutIntelligentTieringConfiguration'
+              - 's3:PutLifecycleConfiguration'
+              - 's3:PutMetricsConfiguration'              
+            Resource: 
+              - !Sub 'arn:${AWS::Partition}:s3:::d-s-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::d-m-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t2-s-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t2-m-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t3-s-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t3-m-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t5-s-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t5-m-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::s-s-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::s-m-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::p-s-*'
+              - !Sub 'arn:${AWS::Partition}:s3:::p-m-*'
+          - Effect: Allow
+            Action:
+              - 's3:AbortMultipartUpload'
+              - 's3:PutObject'
+              - 's3:DeleteObject*'              
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:s3:::d-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::d-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t2-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t2-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t3-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t3-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t5-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t5-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::s-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::s-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::p-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::p-m-*/*'
+          - Effect: Allow
+            Action:
+              - 's3:Get*'
+              - 's3:List*'
+            Resource: '*'
+
+  # ElasticLoadBalancer Permissions
+  AcoeCICDRoleELBPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleELBPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'elasticloadbalancing:AddListenerCertificates'
+              - 'elasticloadbalancing:AddTags'
+              - 'elasticloadbalancing:ApplySecurityGroupsToLoadBalancer'
+              - 'elasticloadbalancing:AttachLoadBalancerToSubnets'
+              - 'elasticloadbalancing:ConfigureHealthCheck'
+              - 'elasticloadbalancing:CreateListener'
+              - 'elasticloadbalancing:CreateLoadBalancer*'
+              - 'elasticloadbalancing:CreateRule'
+              - 'elasticloadbalancing:CreateTargetGroup'
+              - 'elasticloadbalancing:DeleteListener'
+              - 'elasticloadbalancing:DeleteLoadBalancer*'
+              - 'elasticloadbalancing:DeleteTargetGroup'
+              - 'elasticloadbalancing:DeleteRule'
+              - 'elasticloadbalancing:DeregisterTargets'
+              - 'elasticloadbalancing:Describe*'
+              - 'elasticloadbalancing:DisableAvailabilityZonesForLoadBalancer'
+              - 'elasticloadbalancing:EnableAvailabilityZonesForLoadBalancer'
+              - 'elasticloadbalancing:ModifyListener'
+              - 'elasticloadbalancing:ModifyLoadBalancerAttributes'
+              - 'elasticloadbalancing:ModifyRule'
+              - 'elasticloadbalancing:ModifyTargetGroup*'
+              - 'elasticloadbalancing:RegisterTargets'
+              - 'elasticloadbalancing:RemoveListenerCertificates'
+              - 'elasticloadbalancing:SetIpAddressType'
+              - 'elasticloadbalancing:SetLoadBalancerPolicies*'
+              - 'elasticloadbalancing:SetRulePriorities'
+              - 'elasticloadbalancing:SetSecurityGroups'
+              - 'elasticloadbalancing:ModifyProvisionedCapacity'
+            NotResource: !Sub 'arn:${AWS::Partition}:elasticloadbalancing:*:*:*/cns*'
+
+  # CloudFormation Permissions
+  AcoeCICDRoleCFNPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleCFNPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'cloudformation:CreateChangeSet'
+              - 'cloudformation:CreateStack'
+              - 'cloudformation:DeleteStack'
+              - 'cloudformation:Describe*'
+              - 'cloudformation:ExecuteChangeSet'
+              - 'cloudformation:UpdateStack'
+              - 'cloudformation:CancelUpdateStack'
+              - 'cloudformation:ContinueUpdateRollback'
+              - 'cloudformation:DeleteChangeSet'
+              - 'cloudformation:ExecuteChangeSet'
+              - 'cloudformation:SignalResource'
+              - 'cloudformation:UpdateStack'
+              - 'cloudformation:ValidateTemplate'
+            NotResource:
+              - !Sub 'arn:${AWS::Partition}:cloudformation:*:*:stack/cns*/*'
+              - !Sub 'arn:${AWS::Partition}:cloudformation:*:*:stack/StackSet*/*'
+
+  # SSM Permissions
+  AcoeCICDRoleSSMPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleSSMPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'ssm:AddTagsToResource'
+              - 'ssm:DeleteParameter'
+              - 'ssm:DeleteParameters'
+              - 'ssm:DescribeParameters'
+              - 'ssm:LabelParameterVersion'
+              - 'ssm:ListTagsForResource'
+              - 'ssm:PutParameter'
+              - 'ssm:RemoveTagsFromResource'
+              - 'ssm:UnlabelParameterVersion'
+            NotResource: !Sub 'arn:${AWS::Partition}:ssm:*:*:parameter/CNS/**'
+          - Effect: Allow
+            Action:
+              - 'ssm:GetParameter*'
+              - 'ssm:GetParameters*'
+            Resource: '*'
+
+  # SNS Permissions
+  AcoeCICDRoleSNSPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleSNSPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'sns:ConfirmSubscription'
+              - 'sns:CreateTopic'
+              - 'sns:DeleteTopic'
+              - 'sns:Get*'
+              - 'sns:List*'
+              - 'sns:Publish'
+              - 'sns:Subscribe'
+              - 'sns:TagResource'
+              - 'sns:Unsubscribe'
+              - 'sns:UntagResource'
+            Resource: '*'
+
+  # STS Permissions
+  AcoeCICDRoleSTSPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleSTSPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'sts:DecodeAuthorizationMessage'
+            Resource: '*'
+
+  # SecretsManager Permissions
+  AcoeCICDRoleSecretsManagerPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleSecretsManagerPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'secretsmanager:CreateSecret'
+              - 'secretsmanager:DeleteSecret'
+              - 'secretsmanager:DeleteResourcePolicy'
+              - 'secretsmanager:DescribeSecret'
+              - 'secretsmanager:Get*'
+              - 'secretsmanager:GetResourcePolicy'
+              - 'secretsmanager:List*'
+              - 'secretsmanager:PutResourcePolicy'
+              - 'secretsmanager:RotateSecret'
+              - 'secretsmanager:TagResource'
+              - 'secretsmanager:UpdateSecret'
+            Resource: !Sub 'arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:DHP-*'
+
+  # CertificatesManager Permissions
+  AcoeCICDRoleACMPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleACMPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'acm:AddTagsToCertificate'
+              - 'acm:DeleteCertificate'
+              - 'acm:DescribeCertificate'
+              - 'acm:GetCertificate'
+              - 'acm:ImportCertificate'
+              - 'acm:List*'
+              - 'acm:RenewCertificate'
+              - 'acm:RequestCertificate'
+            Resource: '*'
+            
+  # PermissionBoundary Policy
+  AccountBoundaryPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: DHP-Account-Boundary
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'cloudwatch:*'
+            Resource: !Sub
+              arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:DHP-*
+          - Effect: Allow
+            Action:
+              - 'events:*'
+            Resource: !Sub
+              arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/DHP-*
+          - Effect: Allow
+            Action:
+              - 'cloudwatch:Describe*'
+              - 'events:Describe*'
+              - 'events:List*'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'ssm:GetParameters'
+              - 'ssm:GetParameter'
+              - 'ssm:DescribeParameters'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'secretsmanager:GetResourcePolicy'
+              - 'secretsmanager:GetSecretValue'
+              - 'secretsmanager:DescribeSecret'
+              - 'secretsmanager:ListSecretVersionIds'
+            Resource: !Sub
+              arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:DHP-*
+          - Effect: Allow
+            Action:
+              - 'secretsmanager:ListSecrets'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 's3:ListBucket'          
+            Resource: '*'                  
+          - Effect: Allow
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'                  
+            Resource: 
+              - !Sub 'arn:${AWS::Partition}:s3:::d-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::d-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t2-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t2-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t3-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t3-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t5-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::t5-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::s-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::s-m-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::p-s-*/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::p-m-*/*'
+           # this permission is to enable CNS BootStrapping permission for EC2
+           # Note: Check the below permissions, if you run into Bootstrapping, RDP, SSM Session Manager related permission
+           # issues with EC2 instance.
+           # make sure these permissions are in sync with the managed policies (BootstrapMandatoryInstancePolicy,AmazonSSMManagedInstanceCore
+           # and AmazonSSMReadOnlyAccess) which we attach to EC2 instance profile. 
+          - Effect: Allow
+            Action:
+              - 'ssm:DescribeAssociation'
+              - 'ssm:GetDeployablePatchSnapshotForInstance'
+              - 'ssm:GetDocument'
+              - 'ssm:GetManifest'
+              - 'ssm:GetParameters'
+              - 'ssm:ListAssociations'
+              - 'ssm:ListInstanceAssociations'
+              - 'ssm:PutInventory'
+              - 'ssm:PutComplianceItems'
+              - 'ssm:PutConfigurePackageResult'
+              - 'ssm:UpdateAssociationStatus'
+              - 'ssm:UpdateInstanceAssociationStatus'
+              - 'ssm:UpdateInstanceInformation'
+              - 'ec2messages:AcknowledgeMessage'
+              - 'ec2messages:DeleteMessage'
+              - 'ec2messages:FailMessage'
+              - 'ec2messages:GetEndpoint'
+              - 'ec2messages:GetMessages'
+              - 'ec2messages:SendReply'
+              - 's3:ListAllMyBuckets'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 's3:Get*'
+            Resource: 'arn:aws:s3:::cns-*-os-bootstrap-scripts/*'
+          - Effect: Allow
+            Action:
+              - 'kms:Decrypt'
+            Resource: 
+              - !Ref KMSKeyId
+              - !Ref SecretMgrKMSKeyId
+            
+          - Effect: Allow
+            Action:
+              - 'cloudwatch:PutMetricData'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'ssm:DescribeAssociation'
+              - 'ssm:GetDeployablePatchSnapshotForInstance'
+              - 'ssm:GetDocument'
+              - 'ssm:DescribeDocument'
+              - 'ssm:GetManifest'
+              - 'ssm:GetParameter'
+              - 'ssm:GetParameters'
+              - 'ssm:ListAssociations'
+              - 'ssm:ListInstanceAssociations'
+              - 'ssm:PutInventory'
+              - 'ssm:PutComplianceItems'
+              - 'ssm:PutConfigurePackageResult'
+              - 'ssm:UpdateAssociationStatus'
+              - 'ssm:UpdateInstanceAssociationStatus'
+              - 'ssm:UpdateInstanceInformation'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'ssmmessages:CreateControlChannel'
+              - 'ssmmessages:CreateDataChannel'
+              - 'ssmmessages:OpenControlChannel'
+              - 'ssmmessages:OpenDataChannel'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'ec2messages:AcknowledgeMessage'
+              - 'ec2messages:DeleteMessage'
+              - 'ec2messages:FailMessage'
+              - 'ec2messages:GetEndpoint'
+              - 'ec2messages:GetMessages'
+              - 'ec2messages:SendReply'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'ssm:Describe*'
+              - 'ssm:Get*'
+              - 'ssm:List*'
+            Resource: '*'
+
+ # IAM Permissions
+  AcoeCICDRoleIAMPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleIAMPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'iam:GetInstanceProfile'
+              - 'iam:GetPolicy*'
+              - 'iam:GetRole*'
+              - 'iam:ListAttachedRolePolicies'
+              - 'iam:ListInstanceProfile*'
+              - 'iam:ListPolicies'
+              - 'iam:ListPolicy*'
+              - 'iam:ListRoles'
+              - 'iam:ListRolePolicies'
+              - 'iam:ListRoleTags'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'iam:CreatePolicy'
+              - 'iam:DeletePolicy'
+              - 'iam:TagPolicy'
+              - 'iam:UntagPolicy'
+            Resource: 
+              - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/DHP-*'
+          - Effect: Allow
+            Action:
+              - 'iam:AttachRolePolicy'
+              - 'iam:CreateServiceLinkedRole'
+              - 'iam:DetachRolePolicy'
+              - 'iam:DeleteRolePolicy'
+              - 'iam:DeleteRole'
+              - 'iam:PassRole'
+              - 'iam:PutRolePolicy'
+              - 'iam:TagRole'
+              - 'iam:UntagRole'
+            Resource: 
+              - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/DHP-*'
+          - Effect: Allow
+            Action:
+              - 'iam:AddRoleToInstanceProfile'
+              - 'iam:CreateInstanceProfile'
+              - 'iam:DeleteInstanceProfile'
+              - 'iam:RemoveRoleFromInstanceProfile'
+              - 'iam:TagInstanceProfile'
+              - 'iam:UntagInstanceProfile'
+            Resource: 
+              - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:instance-profile/DHP-*'
+          - Effect: Allow
+            Action:              
+              - 'iam:CreateRole'                  
+              - 'iam:PutRolePermissionsBoundary'
+            Resource: 
+              - !Sub 'arn:aws:${AWS::Partition}::${AWS::AccountId}:role/DHP-*'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:role/DHP-*'
+            Condition:
+              StringLike:
+                'iam:PermissionsBoundary': !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/DHP-Account-Boundary'
+
+  # KMS Permissions
+  AcoeCICDRoleKMSPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleKMSPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'kms:Decrypt'
+              - 'kms:Describe*'
+              - 'kms:Encrypt'
+              - 'kms:GenerateDataKey*'
+              - 'kms:List*'
+              - 'kms:ReEncrypt*'
+            Resource: '*'
+
+  # Route53 Permissions
+  AcoeCICDRoleRoute53Policy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleRoute53Policy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'route53:ChangeResourceRecordSets'
+              - 'route53:GetChange'
+              - 'route53:GetHostedZone'
+              - 'route53:ListHealthChecks'
+              - 'route53:ListHostedZones'
+              - 'route53:ListResourceRecordSets'
+              - 'route53:UpdateHealthCheck'
+            Resource: '*'
+
+  # Lambda Permissions
+  AcoeCICDRoleLambdaPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleLambdaPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'lambda:AddPermission'
+              - 'lambda:RemovePermission'
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:d-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:d-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t2-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t2-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t3-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t3-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t5-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t5-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:s-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:s-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:p-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:p-m-*'
+            Condition:
+              StringEquals:
+                lambda:Principal: 'events.amazonaws.com'
+          - Effect: Allow
+            Action:
+              - 'lambda:CreateAlias'
+              - 'lambda:CreateEventSourceMapping'
+              - 'lambda:CreateFunction'
+              - 'lambda:DeleteAlias'
+              - 'lambda:DeleteEventSourceMapping'
+              - 'lambda:DeleteFunction'
+              - 'lambda:Invoke'
+              - 'lambda:InvokeAsync'
+              - 'lambda:InvokeFunction'
+              - 'lambda:PublishVersion'
+              - 'lambda:RemovePermission'
+              - 'lambda:TagResource'
+              - 'lambda:UntagResource'
+              - 'lambda:UpdateAlias'
+              - 'lambda:UpdateEventSourceMapping'
+              - 'lambda:UpdateFunction*'
+              - 'lambda:GetFunction*'
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:d-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:d-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t2-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t2-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t3-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t3-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t5-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:t5-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:s-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:s-m-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:p-s-*'
+              - !Sub 'arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:p-m-*'
+          - Effect: Allow
+            Action:
+              - 'lambda:GetFunction*'
+            Resource: '*'
+
+  AcoeCICDRoleCloudWatchPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleCloudWatchPolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'cloudwatch:DeleteAlarms'
+              - 'cloudwatch:DisableAlarmActions'
+              - 'cloudwatch:EnableAlarmActions'
+              - 'cloudwatch:PutMetricAlarm'
+              - 'cloudwatch:SetAlarmState'
+            Resource: !Sub >-
+              arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:DHP-*
+          - Effect: Allow
+            Action:
+              - 'cloudwatch:DeleteDashboards'
+              - 'cloudwatch:PutDashboard'
+            Resource: !Sub >-
+              arn:${AWS::Partition}:cloudwatch::${AWS::AccountId}:dashboard/DHP-*
+          - Effect: Allow
+            Action:
+              - 'cloudwatch:Describe*'
+              - 'cloudwatch:Get*'
+              - 'cloudwatch:List*'
+            Resource: '*'
+
+  # EventBridge Permissions
+  AcoeCICDRoleEventBridgePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AcoeCICDRoleEventBridgePolicy
+      Roles:
+        - AcoeCICDRole
+      Path: /
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'events:DeleteRule'
+              - 'events:DisableRule'
+              - 'events:EnableRule'
+              - 'events:PutEvents'
+              - 'events:PutRule'
+              - 'events:PutTargets'
+              - 'events:RemoveTargets'
+            Resource: !Sub 'arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/DHP-*'
+          - Effect: Allow
+            Action:
+              - 'events:DescribeRule'
+            Resource: '*'
