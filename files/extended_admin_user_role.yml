@@ -1,0 +1,28 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AdminUserRole changes to be able to deploy CFN templates.
+
+Resources:  
+  AdminUserCloudFormationPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Roles:
+        - AdminUserRole
+      Description: Permission to execute CloudFormation templates.
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PassRole
+            Effect: Allow
+            Action:
+              - iam:passrole
+              - lambda:AddPermission
+              - lambda:PutProvisionedConcurrencyConfig
+              - logs:DeleteLogGroup
+              - logs:DeleteLogStream
+              - logs:PutRetentionPolicy
+              - secretsmanager:CreateSecret
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+              - dynamodb:UpdateTimeToLive
+            Resource: '*'

@@ -1,6 +1,0 @@
-approvalRules:
-  - changedFiles:
-      allowed:
-        - tests/*
-        - package.json
-        - yarn.lock

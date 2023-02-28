@@ -1,0 +1,60 @@
+---
+#This is where you would specify the stacks for the features that you want to deploy
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Create Stack for tenant's custom services
+
+Mappings:
+  EnvironmentMap:
+    "341771850383":
+      EnvironmentName: "nonprod"
+      AdminUserRoleName: "AdminUserRole"
+      InfobloxSGFile: "Nonp_Infoblox_SecurityGroup.yml"
+      DdiLambdaRoleName: "cba-a-np-0999387-is-nft-foundation_ns-DdiIamLambdaRole"
+      VpcId: "vpc-0a56cfdea8f9405bd"
+      DynamoDbArn: "arn:aws:dynamodb:ap-southeast-2:341771850383:table/IpamVendTasks"
+    "122247468608":
+      EnvironmentName: "production"
+      AdminUserRoleName: "AdminUserRole"
+      InfobloxSGFile: "Prod_Infoblox_SecurityGroup.yml"
+      DdiLambdaRoleName: "cba-a-pr-1008109-is-prd-foundation_ns-DdiIamLambdaRole"
+      VpcId: "vpc-07b325da347fe0327"
+      DynamoDbArn: "arn:aws:dynamodb:ap-southeast-2:122247468608:table/IpamVendTasks"
+
+Conditions:
+  NonProd:
+    Fn::Equals: [ !FindInMap [EnvironmentMap, !Ref "AWS::AccountId", EnvironmentName], "nonprod" ]
+  Production:
+    Fn::Equals: [ !FindInMap [EnvironmentMap, !Ref "AWS::AccountId", EnvironmentName], "production" ]
+  NonProdandProd:
+    Fn::Or:
+      - Condition: NonProd
+      - Condition: Production
+ 
+Parameters:
+  TemplateLocation:
+    Type: "String"
+
+Resources:
+  AdminUserRoleStack:
+    Condition: NonProdandProd
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.${AWS::Region}.amazonaws.com/${TemplateLocation}/extended_admin_user_role.yml'
+
+  CipamIamLambdaRoleStack:
+    Condition: NonProdandProd
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://s3.${AWS::Region}.amazonaws.com/${TemplateLocation}/ddi_lambda_iam_role.yml"
+      Parameters:
+        RoleName: !FindInMap [EnvironmentMap, !Ref "AWS::AccountId", "DdiLambdaRoleName"]
+        DynamoDbArn: !FindInMap [EnvironmentMap, !Ref "AWS::AccountId", "DynamoDbArn"]
+
+  CipamInfobloxSgStack:
+    Condition: NonProdandProd
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Join ["", [ !Sub 'https://s3.${AWS::Region}.amazonaws.com/${TemplateLocation}/', !FindInMap [EnvironmentMap, !Ref "AWS::AccountId", "InfobloxSGFile"] ] ]
+      Parameters:
+        VpcId: !FindInMap [EnvironmentMap, !Ref "AWS::AccountId", "VpcId"]
