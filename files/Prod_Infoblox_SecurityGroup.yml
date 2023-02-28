@@ -1,0 +1,41 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CIPAM PORD MGMT INFOBLOX SG
+
+Parameters:
+  VpcId:
+    Description: VPC id of the account
+    Type : 'String'
+  
+Resources:  
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: CIPAM NONP MGMT INFOBLOX SG
+      Tags:
+      - Key: Name
+        Value: cipam_mgmt_ecmc_infoblox_sg
+      VpcId: !Ref VpcId
+
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 10.88.136.32/32
+        Description: Allow Outbound to Infoblox DDI on eCMC
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 10.89.136.32/32
+        Description: Allow Outbound to Infoblox DDI on eCMC
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 10.89.136.31/32
+        Description: Allow Outbound to Infoblox DDI on eCMC
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 10.88.136.33/32
+        Description: Allow Outbound to Infoblox DDI on eCMC
+
